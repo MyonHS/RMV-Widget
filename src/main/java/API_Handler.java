@@ -54,7 +54,7 @@ public class API_Handler {
 
         try
         {
-            stopFile = new FileInputStream(new File("Haltestellen.xlsx"));
+            stopFile = new FileInputStream("Haltestellen.xlsx");
         } catch (FileNotFoundException e)
         {
                 throw new RuntimeException(e);
@@ -105,13 +105,13 @@ public class API_Handler {
     {
         JSONObject result;
         URL url=null;
-        HttpURLConnection con = null;
+        HttpURLConnection con;
 
         switch (type)
         {
             case DEPARTUREBOARD :
                 try {
-                    url = new URL("https://www.rmv.de/hapi/departureBoard?accessId="+apiKey+"&id="+Integer.toString(startStopId));
+                    url = new URL("https://www.rmv.de/hapi/departureBoard?accessId="+apiKey+"&id="+ startStopId);
                 } catch (MalformedURLException e) {
                     throw new RuntimeException(e);
                 }
@@ -123,6 +123,7 @@ public class API_Handler {
 
         try {
 
+            assert url != null;
             con = (HttpURLConnection) url.openConnection();
 
             con.setRequestMethod("GET");
@@ -174,7 +175,10 @@ public class API_Handler {
 
             newDeparture+=currentDepartureObject.get("name");
 
-            //newDeparture+="\t"+currentDepartureObject.get("rtTrack"); //We only get track information for busses and Trains. TODO: check catoutL here
+            if(currentDepartureObject.toString().contains("rtTrack")) //We only get track information for busses and Trains
+            {
+                newDeparture+=" Track: "+currentDepartureObject.get("rtTrack");
+            }
 
             newDeparture+="  "+currentDepartureObject.get("time");
             newDeparture+="  "+currentDepartureObject.get("direction");
