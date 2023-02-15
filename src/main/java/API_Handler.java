@@ -111,13 +111,18 @@ public class API_Handler {
         {
             case DEPARTUREBOARD :
                 try {
-                    url = new URL("https://www.rmv.de/hapi/departureBoard?accessId="+apiKey+"&id="+ startStopId);
+                    url = new URL("https://www.rmv.de/hapi/departureBoard?accessId="+apiKey+"&id="+startStopId);
                 } catch (MalformedURLException e) {
                     throw new RuntimeException(e);
                 }
                 break;
 
-            case ARRIVALBOARD: //not implemented yet
+            case ARRIVALBOARD:
+                try {
+                    url = new URL("https://www.rmv.de/hapi/arrivalBoard?accessId="+apiKey+"&id="+startStopId);
+                } catch (MalformedURLException e) {
+                    throw new RuntimeException(e);
+                }
                 break;
         }
 
@@ -129,7 +134,7 @@ public class API_Handler {
             con.setRequestMethod("GET");
             con.getResponseCode();
 
-            //read response
+            //read response (as xml)
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String inputLine;
             StringBuffer content = new StringBuffer();
@@ -158,9 +163,7 @@ public class API_Handler {
 
         JSONObject response = sendAPIRequest(stopID,-1,requestType.DEPARTUREBOARD);
 
-        String jsonString = response.toString(4);
-
-        if(!jsonString.contains("stop")) //check if departures exist
+        if(!response.toString(4).contains("stop")) //check if departures exist
         {
             result.add("Keine Abfahrten in der nächsten Stunde");
             return result;
@@ -180,10 +183,47 @@ public class API_Handler {
                 newDeparture+=" Track: "+currentDepartureObject.get("rtTrack");
             }
 
-            newDeparture+="  "+currentDepartureObject.get("time");
+            newDeparture+="  "+currentDepartureObject.get("Time");
             newDeparture+="  "+currentDepartureObject.get("direction");
 
             result.add(newDeparture);
+        }
+
+        return result;
+    }
+
+    public static Vector<String> getArrivalsByStopname(String stopName)
+    {
+        Vector<String> result = new Vector<>();
+
+        int stopID = getStopIdByName(stopName);
+
+        JSONObject response = sendAPIRequest(stopID,-1,requestType.ARRIVALBOARD);
+
+        if(!response.toString(4).contains("stop")) //check if Arrivals exist
+        {
+            result.add("Keine Ankunften in der nächsten Stunde");
+            return result;
+        }
+
+        int arrivalsNumber = response.getJSONObject("ArrivalBoard").getJSONArray("Arrival").length();
+
+        for(int currentArrivalIndex = 0; currentArrivalIndex<arrivalsNumber; currentArrivalIndex++)
+        {
+            JSONObject currentArrivalObject = response.getJSONObject("ArrivalBoard").getJSONArray("Arrival").getJSONObject(currentArrivalIndex);
+            String newArrival="";
+
+            newArrival+=currentArrivalObject.get("name");
+
+            if(currentArrivalObject.toString().contains("rtTrack")) //We only get track information for busses and Trains
+            {
+                newArrival+=" Track: "+currentArrivalObject.get("rtTrack");
+            }
+
+            newArrival+="  "+currentArrivalObject.get("Time");
+            newArrival+="  "+currentArrivalObject.get("origin");
+
+            result.add(newArrival);
         }
 
         return result;

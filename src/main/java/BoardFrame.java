@@ -4,14 +4,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
 
-public class DepartureBoardFrame extends JFrame implements ActionListener {
+public class BoardFrame extends JFrame implements ActionListener {
 
+    String Boardtype;
     Vector<String> stopsOfStation;
-    public DepartureBoardFrame(Vector<String> stops)
+    public BoardFrame(Vector<String> stops, String type)
     {
         stopsOfStation = stops;
 
-        this.setTitle("ArrivalBoard");
+        if(type.equals("ArrivalBoard")) this.setTitle("ArrivalBoard");
+        else this.setTitle("DepartureBoard");
+
         this.setSize(600,900); //should be enough
         this.setResizable(true);
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

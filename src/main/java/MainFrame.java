@@ -43,11 +43,11 @@ public class MainFrame extends JFrame implements ActionListener {
 
         if(e.getActionCommand().equals("ArrivalBoard")) //not implemented yet
         {
-
+            new StationInputFrame(API_Handler.requestType.ARRIVALBOARD);
         }
         else if(e.getActionCommand().equals("DepartureBoard"))
         {
-            new StationInputFrame();
+            new StationInputFrame(API_Handler.requestType.DEPARTUREBOARD);
         }
 
     }
