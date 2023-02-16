@@ -177,8 +177,6 @@ public class API_Handler {
             JSONObject currentDepartureObject = response.getJSONObject("DepartureBoard").getJSONArray("Departure").getJSONObject(currentDepartureIndex);
             String newDeparture="";
 
-            System.out.println(currentDepartureIndex);
-
             //since they "updated" to the new api sometimes the name and direction information is missing randomly.
             //I think it's a bug on their site
             try{
