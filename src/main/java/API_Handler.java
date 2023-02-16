@@ -2,6 +2,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
 
@@ -101,7 +102,7 @@ public class API_Handler {
         return result;
     }
 
-    private static JSONObject sendAPIRequest(int startStopId, int endStopId, requestType type)
+    private static JSONObject sendAPIRequest(int startStopId, int endStopId, requestType type, int duration)
     {
         JSONObject result;
         URL url=null;
@@ -155,13 +156,13 @@ public class API_Handler {
         return result;
     }
 
-    public static Vector<String> getDeparturesByStopname(String stopName)
+    public static Vector<String> getDeparturesByStopname(String stopName, int duration)
     {
         Vector<String> result = new Vector<>();
 
         int stopID = getStopIdByName(stopName);
 
-        JSONObject response = sendAPIRequest(stopID,-1,requestType.DEPARTUREBOARD);
+        JSONObject response = sendAPIRequest(stopID,-1,requestType.DEPARTUREBOARD,duration);
 
         if(!response.toString(4).contains("stop")) //check if departures exist
         {
@@ -176,14 +177,25 @@ public class API_Handler {
             JSONObject currentDepartureObject = response.getJSONObject("DepartureBoard").getJSONArray("Departure").getJSONObject(currentDepartureIndex);
             String newDeparture="";
 
-            newDeparture+=currentDepartureObject.get("name");
+            System.out.println(currentDepartureIndex);
+
+            //since they "updated" to the new api sometimes the name and direction information is missing randomly.
+            //I think it's a bug on their site
+            try{
+                newDeparture+=currentDepartureObject.get("name");
+            }
+            catch(JSONException jsonexc)
+            {
+                //discard current departure. Not much we can do
+                continue;
+            }
 
             if(currentDepartureObject.toString().contains("rtTrack")) //We only get track information for busses and Trains
             {
                 newDeparture+=" Track: "+currentDepartureObject.get("rtTrack");
             }
+            newDeparture+="  "+currentDepartureObject.get("time");
 
-            newDeparture+="  "+currentDepartureObject.get("Time");
             newDeparture+="  "+currentDepartureObject.get("direction");
 
             result.add(newDeparture);
@@ -192,13 +204,13 @@ public class API_Handler {
         return result;
     }
 
-    public static Vector<String> getArrivalsByStopname(String stopName)
+    public static Vector<String> getArrivalsByStopname(String stopName, int duration)
     {
         Vector<String> result = new Vector<>();
 
         int stopID = getStopIdByName(stopName);
 
-        JSONObject response = sendAPIRequest(stopID,-1,requestType.ARRIVALBOARD);
+        JSONObject response = sendAPIRequest(stopID,-1,requestType.ARRIVALBOARD, duration);
 
         if(!response.toString(4).contains("stop")) //check if Arrivals exist
         {
@@ -220,7 +232,7 @@ public class API_Handler {
                 newArrival+=" Track: "+currentArrivalObject.get("rtTrack");
             }
 
-            newArrival+="  "+currentArrivalObject.get("Time");
+            newArrival+="  "+currentArrivalObject.get("time");
             newArrival+="  "+currentArrivalObject.get("origin");
 
             result.add(newArrival);

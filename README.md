@@ -8,11 +8,9 @@ You need to register for an API key at https://opendata.rmv.de/site/anmeldeseite
 After you got your API key create a file called "apikey.txt" and put it in there
 
 Current features:
-- Show all departures of a Station in the next hour
-- Show all arrivals of a Station in the next hour
+- Show all departures or arrivals of a Station in the next x Minutes
 
 Current Todo/Planned features:
-- Choose a time value for Departure/Arrivalboard (default is 1 hour)
 - Favorite Stations/Routes
 - Show me all possible ways to travel from A to B, how long it takes and when i need to go
 

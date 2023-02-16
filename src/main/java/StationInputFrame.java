@@ -63,19 +63,35 @@ public class StationInputFrame extends JFrame implements ActionListener {
 
         if(e.getActionCommand().equals("OK"))
         {
-            String interval = intervalTextField.getText();
+            int interval;
+            String intervalString = intervalTextField.getText();
 
+            try
+            {
+                interval = Integer.parseInt(intervalString);
+            }
+            catch (NumberFormatException exc)
+            {
+                JOptionPane.showMessageDialog(null, "Please insert a Value between 1 and 1400", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if(interval<1 || interval>1400)
+            {
+                JOptionPane.showMessageDialog(null, "Please insert a Value between 1 and 1400", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
             String stopName = (String)comboBox.getSelectedItem(); //can only be String
 
             if(requestType== API_Handler.requestType.DEPARTUREBOARD)
             {
-                Vector<String> stops = API_Handler.getDeparturesByStopname(stopName);
+                Vector<String> stops = API_Handler.getDeparturesByStopname(stopName,interval);
                 new BoardFrame(stops,"DepartureBoard");
             }
             else if (requestType== API_Handler.requestType.ARRIVALBOARD)
             {
-                Vector<String> stops = API_Handler.getArrivalsByStopname(stopName);
+                Vector<String> stops = API_Handler.getArrivalsByStopname(stopName,interval);
                 new BoardFrame(stops, "ArrivalBoard");
             }
 
